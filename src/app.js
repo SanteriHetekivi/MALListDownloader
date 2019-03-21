@@ -1,25 +1,31 @@
 "use strict";
 
 import * as MALDownloader from "./MALDownloader";
-var success_counter = 2;
+import { DEBUG } from "./config";
+
+var run_counter = 2;
+var return_code = 0;
 
 /**
  * Handles successfull list download operation.
  * @param {string} _listType List type that succeeded.
  */
-function onSuccess(_listType) {
-  --success_counter;
-  if (success_counter <= 0) process.exit(0);
+function runEnded(_listType) {
+  --run_counter;
+  if (run_counter <= 0) process.exit(return_code);
 }
 
-(async () => {
-  try {
-    // Download manga list.
-    MALDownloader.download(MALDownloader.MANGA, onSuccess);
-    // Download anime list.
-    MALDownloader.download(MALDownloader.ANIME, onSuccess);
-  } catch (e) {
-    console.log(e);
-    process.exit(1);
-  }
-})();
+function onFailure(_err, _listType) {
+  return_code = 1;
+  if (DEBUG) console.log(_err);
+  runEnded(_listType);
+}
+
+// Download manga list.
+MALDownloader.download(MALDownloader.MANGA, runEnded).catch(err => {
+  onFailure(err, MALDownloader.MANGA);
+});
+// Download anime list.
+MALDownloader.download(MALDownloader.ANIME, runEnded).catch(err => {
+  onFailure(err, MALDownloader.ANIME);
+});

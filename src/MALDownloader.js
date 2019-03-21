@@ -77,7 +77,7 @@ export async function download(_listType, _onSuccess) {
       // Set download behavior to save files to downloads folder.
       await page._client.send("Page.setDownloadBehavior", {
         behavior: "allow",
-        downloadPath: `downloads/`
+        downloadPath: CONF.path.resolve(__dirname, "../downloads")
       });
       // Click link to download export.
       await click(page, 'a[href*="/export/download"]');
@@ -92,15 +92,15 @@ export async function download(_listType, _onSuccess) {
     await click(page, "input[name=subexport]");
     // Handel error.
   } catch (e) {
-    // Save screenshot of the error.
-    await page.screenshot({
-      path: (
-        "errors/error_" +
-        new Date().toISOString() +
-        e.message +
-        ".png"
-      ).replace(/ /g, "_")
-    });
+    if (CONF.DEBUG) {
+      // Save screenshot of the error.
+      await page.screenshot({
+        path:
+          CONF.path.resolve(__dirname, "../errors/error_") +
+          (new Date().toISOString() + e.message + ".png").replace(/ /g, "_")
+      });
+    }
+
     // Close browser
     await browser.close();
     // and throw the error.

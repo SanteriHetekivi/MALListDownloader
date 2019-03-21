@@ -23,9 +23,10 @@ Downloads your [MyAnimeList](https://myanimelist.net/) manga and anime lists.
 
 ## ENV
 
-| ENV           | Description                                            |
-| ------------- | ------------------------------------------------------ |
-| USERNAME      | Your [MyAnimeList](https://myanimelist.net/) username. |
-| PASSWORD      | Your [MyAnimeList](https://myanimelist.net/) password. |
-| HEADLESS      | Run the script with headless Chromium.                 |
-| DOWNLOAD_TIME | How long to wait for the download.                     |
+| ENV           | Description                                                       |
+| ------------- | ----------------------------------------------------------------- |
+| USERNAME      | Your [MyAnimeList](https://myanimelist.net/) username.            |
+| PASSWORD      | Your [MyAnimeList](https://myanimelist.net/) password.            |
+| HEADLESS      | Run the script with headless Chromium.                            |
+| DOWNLOAD_TIME | How long to wait for the download.                                |
+| DEBUG         | Is debug mode on? If on output errors and save error screenshots. |

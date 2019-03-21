@@ -1,0 +1,26 @@
+{
+  "name": "mal_list_downloader",
+  "version": "1.0.0",
+  "description": "Downloads your MyAnimeList manga and anime lists.",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MAL",
+    "MyAnimelist",
+    "Anime",
+    "Manga",
+    "List"
+  ],
+  "author": "Santeri Hetekivi",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "puppeteer": "1.13.0",
+    "dotenv": "7.0.0",
+    "dotenv-parse-variables": "0.2.0",
+    "babel-register": "6.26.0",
+    "babel-preset-env": "1.7.0",
+    "babel-polyfill": "6.26.0"
+  }
+}

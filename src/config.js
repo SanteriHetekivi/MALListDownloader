@@ -1,14 +1,18 @@
 "use strict";
-
 import { config } from "dotenv";
-const dotenvParseVariables = require("dotenv-parse-variables");
 export const path = require("path");
-let env = config({ path: path.resolve(__dirname, "../.env") });
-if (env.error) throw env.error;
-env = dotenvParseVariables(env.parsed);
 
-export const USERNAME = env.USERNAME;
-export const PASSWORD = env.PASSWORD;
-export const HEADLESS = env.HEADLESS;
-export const DOWNLOAD_TIME = env.DOWNLOAD_TIME;
-export const DEBUG = env.DEBUG;
+var env = null;
+export const DOCKER = process.env.DOCKER === "true";
+if (!DOCKER) {
+  let env_raw = config({ path: path.resolve(__dirname, "../.env") });
+  if (env_raw.error) throw env_raw.error;
+}
+
+export const USERNAME = process.env.USERNAME;
+export const PASSWORD = process.env.PASSWORD;
+export const HEADLESS = process.env.HEADLESS === "true";
+export const DOWNLOAD_TIME = parseInt(process.env.DOWNLOAD_TIME, 10);
+export const DEBUG =
+  typeof process.env.DEBUG === "string" &&
+  process.env.DEBUG.includes("MALDownloader");

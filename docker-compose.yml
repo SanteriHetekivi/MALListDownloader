@@ -3,6 +3,7 @@ version: "3"
 services:
   mal_downloader:
     build: .
+    command: node /app/start.js
     volumes:
       - ./data:/app/data
     env_file:

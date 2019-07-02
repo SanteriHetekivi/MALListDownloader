@@ -32,6 +32,4 @@ COPY . /app
 
 # Install packages.
 RUN npm install
-
-# Run first time.
-CMD [ "node", "start.js" ]
+CMD [ "npm", "install" ]

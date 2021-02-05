@@ -48,7 +48,8 @@ async function clearNewPage(_page) {
   var buttons = null;
   const XPATHS = [
     "//span[contains(text(), 'Got')]/parent::button",
-    "//button[contains(text(), 'OK')]"
+    "//button[contains(text(), 'OK')]",
+    "//button[contains(text(), 'AGREE')]"
   ];
   var i;
   var x;
@@ -61,8 +62,13 @@ async function clearNewPage(_page) {
       try {
         await button.click();
       } catch (err) {
-        // Ignore errors that contain text visible, because element could be invisible.
-        if (!err.message.includes("visible")) throw err;
+        if (
+            // Ignore errors that contain text visible, because element could be invisible.
+            !err.message.includes("visible")
+            &&
+            // Ignore errors that contain text detached, because node could be detached.
+            !err.message.includes("detached")
+        ) throw err;
       }
     }
   }

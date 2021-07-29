@@ -1,0 +1,1 @@
+docker run --rm -v ${PWD}:/data -w /data node:10-slim npm install --package-lock

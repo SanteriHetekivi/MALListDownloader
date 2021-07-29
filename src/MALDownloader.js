@@ -5,7 +5,6 @@ import * as CONF from "./config";
 import Debug from "debug";
 
 const puppeteer = require("puppeteer");
-const ElementHandle = require("puppeteer/lib/JSHandle").ElementHandle;
 
 /**
  * Gets element from the page with a query.
@@ -16,7 +15,7 @@ const ElementHandle = require("puppeteer/lib/JSHandle").ElementHandle;
 async function getElement(_page, _query) {
   const element = await _page.$(_query);
   // Element must be ElementHandle object.
-  if (element instanceof ElementHandle) return element;
+  if (element !== null) return element;
   // Otherwise error has happened.
   else throw new Error("Element " + _query + " not found!");
 }
@@ -157,7 +156,7 @@ export async function download(_listType, _onSuccess) {
       await click(page, 'a[href*="/export/download"]');
       // Wait for download to finnish.
       debug("Wait for download to finnish.");
-      await page.waitFor(parseInt(CONF.DOWNLOAD_TIME));
+      await page.waitForTimeout(parseInt(CONF.DOWNLOAD_TIME));
       // Close browser
       debug("Close browser");
       await browser.close();
@@ -170,7 +169,7 @@ export async function download(_listType, _onSuccess) {
     await click(page, "input[name=subexport]");
     // Waiting max 1 minute for dialog to open...
     debug("Waiting max 1 minute for dialog to open...");
-    await page.waitFor(60 * 1000);
+    await page.waitForTimeout(60 * 1000);
     if (!dialog_open) throw new Error("No dialog for 1 minute!");
     // Handel error.
   } catch (e) {

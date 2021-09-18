@@ -74,6 +74,34 @@ async function clearNewPage(_page) {
 }
 
 /**
+ * Handle error.
+ * @param {Error} _err Error object to handle.
+ * @param {debug.Debug} _debug Object to print debug strings.
+ * @param {string} _listType List type for download.
+ * @param {puppeteer.Browser} _browser Puppeteer Browser to close.
+ * @param {puppeteer.Page} _page Puppeteer Page to get screenshot of.
+ * @param {function} _onFailure Function to call when download failed and cannot throw error.
+ */
+async function handelError(_err, _debug, _listType, _browser, _page, _onFailure)
+{
+  if (CONF.DEBUG) {
+    // Save screenshot of the error.
+    _debug("Save screenshot of the error.");
+    await _page.screenshot({
+      path:
+        CONF.path.resolve(__dirname, "../data/errors/error_") +
+        (new Date().toISOString() + _err.message + ".png").replace(/ /g, "_")
+    });
+  }
+  // Close browser
+  _debug("Close browser");
+  await _browser.close();
+  // and throw the error.
+  _debug("and call on failure.");
+  _onFailure(_err, _listType)
+}
+
+/**
  * CONST for different list types.
  */
 export const ANIME = "1";
@@ -83,8 +111,9 @@ export const MANGA = "2";
  * Downloads MAL list.
  * @param {string} _listType List type to download.
  * @param {function} _onSuccess Function to call when download finnished.
+ * @param {function} _onFailure Function to call when download failed and cannot throw error.
  */
-export async function download(_listType, _onSuccess) {
+export async function download(_listType, _onSuccess, _onFailure) {
   const debug = new Debug(
     "MALDownloader::" +
       (_listType === MANGA
@@ -135,34 +164,42 @@ export async function download(_listType, _onSuccess) {
     var dialog_open = false;
     debug("Set listener for the dialog.");
     await page.on("dialog", async dialog => {
-      // Mark dialog open.
-      debug("Dialog is open.");
-      dialog_open = true;
-      // Accept the dialog.
-      debug("Accept the dialog.");
-      await dialog.accept();
-      // Wait for the new page.
-      debug("Wait for the new page.");
-      await page.waitForNavigation();
-      await clearNewPage(page);
-      // Set download behavior to save files to downloads folder.
-      debug("Set download behavior to save files to downloads folder.");
-      await page._client.send("Page.setDownloadBehavior", {
-        behavior: "allow",
-        downloadPath: CONF.path.resolve(__dirname, "../data/downloads")
-      });
-      // Click link to download export.
-      debug("Click link to download export.");
-      await click(page, 'a[href*="/export/download"]');
-      // Wait for download to finnish.
-      debug("Wait for download to finnish.");
-      await page.waitForTimeout(parseInt(CONF.DOWNLOAD_TIME));
-      // Close browser
-      debug("Close browser");
-      await browser.close();
-      // and call the callback.
-      debug("and call the callback.");
-      _onSuccess(_listType);
+      try
+      {
+        // Mark dialog open.
+        debug("Dialog is open.");
+        dialog_open = true;
+        // Set download behavior to save files to downloads folder.
+        debug("Set download behavior to save files to downloads folder.");
+        await page._client.send("Page.setDownloadBehavior", {
+          behavior: "allow",
+          downloadPath: CONF.path.resolve(__dirname, "../data/downloads")
+        });        
+        // Accept the dialog.
+        debug("Accept the dialog.");
+        await dialog.accept();
+        // Wait for download to finnish.
+        debug("Wait for download to finnish.");
+        await page.waitForTimeout(parseInt(CONF.DOWNLOAD_TIME));
+        // Close browser
+        debug("Close browser");
+        await browser.close();
+        // and call the callback.
+        debug("and call the callback.");
+        _onSuccess(_listType);
+      }
+      // Handel error.
+      catch(err)
+      {
+        await handelError(
+          err,
+          debug,
+          _listType,
+          browser,
+          page,
+          _onFailure
+        )
+      }
     });
     // Click export button.
     debug("Click export button.");
@@ -171,22 +208,16 @@ export async function download(_listType, _onSuccess) {
     debug("Waiting max 1 minute for dialog to open...");
     await page.waitForTimeout(60 * 1000);
     if (!dialog_open) throw new Error("No dialog for 1 minute!");
-    // Handel error.
-  } catch (e) {
-    if (CONF.DEBUG) {
-      // Save screenshot of the error.
-      debug("Save screenshot of the error.");
-      await page.screenshot({
-        path:
-          CONF.path.resolve(__dirname, "../data/errors/error_") +
-          (new Date().toISOString() + e.message + ".png").replace(/ /g, "_")
-      });
-    }
-    // Close browser
-    debug("Close browser");
-    await browser.close();
-    // and throw the error.
-    debug("and throw the error.");
-    throw e;
+  }
+  // Handel error.
+  catch (err) {
+    await handelError(
+      err,
+      debug,
+      _listType,
+      browser,
+      page,
+      _onFailure
+    )
   }
 }

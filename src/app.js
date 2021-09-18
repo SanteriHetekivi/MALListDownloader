@@ -22,10 +22,10 @@ function onFailure(_err, _listType) {
 }
 
 // Download manga list.
-MALDownloader.download(MALDownloader.MANGA, runEnded).catch(err => {
+MALDownloader.download(MALDownloader.MANGA, runEnded, onFailure).catch(err => {
   onFailure(err, MALDownloader.MANGA);
 });
 // Download anime list.
-MALDownloader.download(MALDownloader.ANIME, runEnded).catch(err => {
+MALDownloader.download(MALDownloader.ANIME, runEnded, onFailure).catch(err => {
   onFailure(err, MALDownloader.ANIME);
 });
